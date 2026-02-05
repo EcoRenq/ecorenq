@@ -1,74 +1,73 @@
 import streamlit as st
 
-# --- SAYTIN AYARLARI ---
-st.set_page_config(page_title="ecoRenq.az", layout="centered")
+# Sayt ayarları
+st.set_page_config(page_title="ecoRenq.az", page_icon="🌳", layout="wide")
 
-# Rəngləri və dizaynı gözəlləşdirək (CSS)
-st.markdown("""
-    <style>
-    .main { background-color: #f0fdf4; }
-    .stButton>button { background-color: #22c55e; color: white; border-radius: 10px; }
-    .stProgress > div > div > div > div { background-color: #16a34a; }
-    </style>
-    """, unsafe_allow_html=True)
+# Yaddaş sistemi (Faylları burada saxlayacağıq)
+if 'submissions' not in st.session_state:
+    st.session_state.submissions = []
+if 'page' not in st.session_state:
+    st.session_state.page = "login"
 
-if 'step' not in st.session_state: st.session_state.step = "entry"
-if 'user_score' not in st.session_state: st.session_state.user_score = 0
-
-# --- 1. GİRİŞ SƏHİFƏSİ ---
-if st.session_state.step == "entry":
-    st.image("https://cdn-icons-png.flaticon.com/512/489/489969.png", width=80)
+# --- 1. İSTİFADƏÇİ GİRİŞİ ---
+if st.session_state.page == "login":
     st.title("🌱 ecoRenq.az-a Xoş Gəldiniz")
-    with st.form("qeydiyyat"):
+    with st.form("user_info"):
         ad = st.text_input("Ad")
         soyad = st.text_input("Soyad")
         email = st.text_input("Email")
-        yas = st.number_input("Yaş", min_value=5, max_value=100)
         submit = st.form_submit_button("Daxil Ol")
-        
-        if submit:
-            if ad and soyad and email:
-                st.session_state.user_data = {"ad": ad, "soyad": soyad}
-                st.session_state.step = "dashboard"
-                st.rerun()
-            else:
-                st.error("Zəhmət olmasa bütün xanaları doldurun!")
+        if submit and ad and email:
+            st.session_state.user = f"{ad} {soyad}"
+            st.session_state.page = "main"
+            st.rerun()
 
-# --- 2. MÜŞTƏRİ PANELİ ---
-elif st.session_state.step == "dashboard":
-    st.header(f"🌳 ecoRenq Dünyası: {st.session_state.user_data['ad']}")
+# --- 2. ANA SƏHİFƏ (Fayl Yükləmə) ---
+elif st.session_state.page == "main":
+    st.header(f"🌳 Xoş gəldiniz, {st.session_state.user}")
     
-    # Material Yükləmə
-    st.subheader("📤 Paylaşım Et")
-    c1, c2, c3 = st.columns(3)
-    with c1: st.file_uploader("📸 Şəkil 1", type=['jpg', 'png'])
-    with c2: st.file_uploader("🎥 Video", type=['mp4'])
-    with c3: st.file_uploader("📸 Şəkil 2", type=['jpg', 'png'])
+    st.subheader("📤 Materialları Yükləyin")
+    img1 = st.file_uploader("Şəkil 1 (JPG/PNG)", type=['jpg', 'png'])
+    vid = st.file_uploader("Video (MP4)", type=['mp4'])
     
     if st.button("Təbiət üçün Göndər 🚀"):
-        st.balloons()
-        st.success("Təbrik edirik! ecoRenq olaraq paylaşımınızı qəbul etdik.")
+        if img1 or vid:
+            # Məlumatı bazaya (yaddaşa) əlavə edirik
+            data = {
+                "istifadeci": st.session_state.user,
+                "foto": img1,
+                "video": vid
+            }
+            st.session_state.submissions.append(data)
+            st.success("Məlumatlar göndərildi!")
+            st.balloons()
+        else:
+            st.warning("Zəhmət olmasa ən azı bir fayl seçin.")
 
-    # Bal Skalası
-    st.write(f"### Sizin Eco-Balınız: **{st.session_state.user_score} / 100**")
-    st.progress(st.session_state.user_score)
+    # --- ADMİN PANELİ (SİZİN ÜÇÜN) ---
+    st.sidebar.title("🔐 Admin Girişi")
+    admin_pass = st.sidebar.text_input("Şifrə", type="password")
     
-    # Footer & Sosial Medya
-    st.divider()
-    sc1, sc2, sc3 = st.columns(3)
-    st.write("📸 [Instagram](https://www.instagram.com/ecorenq.az?igsh=Y2RnMGVjNXZiMTFl/)")
-    sc2.write("💬 [WhatsApp](https://wa.me/994998595659)")
-    sc3.write("🤝 **Sponsorlar**: Sende bizlere qosulmaq isteyirsen")
+    if admin_pass == "eco2026":
+        st.sidebar.success("Giriş uğurludur!")
+        st.divider()
+        st.header("📋 Gələn Məlumatlara Baxış")
+        
+        if not st.session_state.submissions:
+            st.info("Hələ ki, heç kim fayl göndərməyib.")
+        else:
+            for i, item in enumerate(st.session_state.submissions):
+                with st.expander(f"Göndərən: {item['istifadeci']}"):
+                    if item['foto']:
+                        st.image(item['foto'], caption="Göndərilən Şəkil", width=300)
+                    if item['video']:
+                        st.video(item['video'])
+                    
+                    # Xal vermə hissəsi
+                    score = st.slider(f"Xal ver ({item['istifadeci']})", 0, 100, key=f"s_{i}")
+                    if st.button(f"Xalı Təsdiqlə", key=f"b_{i}"):
+                        st.toast(f"{item['istifadeci']} üçün {score} xal qeyd edildi!")
 
-    # --- 3. ADMİN PANELİ (GİZLİ) ---
-    with st.sidebar:
-        st.title("🔑 Admin")
-        admin_pass = st.text_input("Şifrə", type="password")
-        if admin_pass == "eco2026":
-            st.write(f"Müştəri: {st.session_state.user_data['ad']}")
-            yeni_bal = st.slider("Xal ver", 0, 100, st.session_state.user_score)
-            if st.button("Balı Təsdiqlə"):
-                st.session_state.user_score = yeni_bal
-                st.rerun()
-            if st.button("🎁 Hədiyyə Gönder"):
-                st.toast("Hədiyyə müştəriyə bildirildi!")
+    # Footer
+    st.divider()
+    st.write("📸 [Instagram](https://www.instagram.com/ecorenq.az?igsh=Y2RnMGVjNXZiMTFl/)")
