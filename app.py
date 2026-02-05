@@ -56,7 +56,7 @@ elif st.session_state.step == "dashboard":
     # Footer & Sosial Medya
     st.divider()
     sc1, sc2, sc3 = st.columns(3)
-    st.write("📸 [Instagram](https://www.instagram.com/ecorenq.az?igsh=Y2RnMGVjNXZiMTFl/)")
+    st1.write("📸 [Instagram](https://www.instagram.com/ecorenq.az?igsh=Y2RnMGVjNXZiMTFl/)")
     sc2.write("💬 [WhatsApp](https://wa.me/994998595659)")
     sc3.write("🤝 **Sponsorlar**: Bizim Meşə, Yaşıl Bakı")
 
