@@ -1,97 +1,100 @@
 import streamlit as st
 
-# Saytın əsas ayarları
-st.set_page_config(page_title="ecoRenq.az", page_icon="🌳", layout="wide")
+# Sayt ayarları
+st.set_page_config(page_title="ecoRenq.az", page_icon="🌿", layout="wide")
 
-# Arxa plan dizaynı
+# CSS - Yaşıl dizayn və Şriftlər
 st.markdown("""
     <style>
     .stApp {
-        background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), 
-        url("https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2026&auto=format&fit=crop");
-        background-size: cover;
+        background: linear-gradient(rgba(0, 50, 0, 0.7), rgba(0, 50, 0, 0.7)), 
+        url("https://images.unsplash.com/photo-1511497584788-8767fe771d21?q=80&w=1932&auto=format&fit=crop");
+        background-size: cover; color: white;
     }
-    .stButton>button { width: 100%; background-color: #2e7d32; color: white; border-radius: 8px; }
+    .main-card { background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 15px; border: 1px solid #4CAF50; }
+    h1, h2, h3 { color: #4CAF50 !important; font-family: 'Arial'; }
+    .stButton>button { background-color: #2e7d32 !important; color: white !important; border-radius: 20px; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
-# Məlumat bazası (müvəqqəti yaddaş)
+# Yaddaş Sistemi (Qeyd: Müvəqqəti yaddaş hələlik eyni serverdə qalır)
 if 'db' not in st.session_state: st.session_state.db = []
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+if 'page' not in st.session_state: st.session_state.page = "login"
 
-# --- GİRİŞ VƏ QEYDİYYAT ---
-if not st.session_state.logged_in:
-    st.title("🌱 ecoRenq.az-a Xoş Gəldiniz")
+# --- 1. QEYDİYYAT SƏHİFƏSİ ---
+if st.session_state.page == "login":
+    st.markdown("<h1 style='text-align: center;'>🌿 ecoRenq.az</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-size: 20px;'>Təbiəti qoru, xal qazan, hədiyyə al! Sən də bizlərə qoşul!</p>", unsafe_allow_html=True)
+    
     with st.container():
-        ad = st.text_input("Adınız")
-        soyad = st.text_input("Soyadınız")
-        yas = st.number_input("Yaşınız", min_value=1, max_value=100, value=20)
-        email = st.text_input("Email ünvanınız")
-        if st.button("Sistemə Daxil Ol"):
+        col_l, col_r = st.columns(2)
+        with col_l:
+            ad = st.text_input("Adınız")
+            soyad = st.text_input("Soyadınız")
+        with col_r:
+            yas = st.number_input("Yaşınız", 5, 100, 20)
+            email = st.text_input("Email")
+            
+        if st.button("HƏRƏKƏTƏ KEÇ 🚀"):
             if ad and soyad and email:
                 st.session_state.current_user = {"ad": ad, "soyad": soyad, "yas": yas}
-                st.session_state.logged_in = True
+                st.session_state.page = "main"
                 st.rerun()
-            else:
-                st.error("Zəhmət olmasa bütün məlumatları doldurun!")
 
-# --- ANA SƏHİFƏ ---
-else:
-    st.header(f"🌳 Salam, {st.session_state.current_user['ad']}!")
+# --- 2. ANA SƏHİFƏ ---
+elif st.session_state.page == "main":
+    st.title(f"🌳 Salam, {st.session_state.current_user['ad']}!")
     
-    # Sponsorlar üçün yer
-    st.info("🤝 **SPONSORLAR:** Bura loqolar əlavə olunacaq")
+    # SPONSOR BÖLMƏSİ
+    st.markdown("<div style='background: rgba(76, 175, 80, 0.2); padding: 15px; border-radius: 10px; text-align: center; border: 1px dashed #4CAF50;'>"
+                "<h3>🤝 SƏN DƏ BİZLƏRƏ QOŞUL!</h3><p>Sponsorluq və tərəfdaşlıq üçün bizimlə əlaqə saxlayın.</p></div>", unsafe_allow_html=True)
     
     st.divider()
-    
-    # İSTƏDİYİN YÜKLƏMƏ SIRASI
-    st.subheader("📤 Materialları Yükləyin")
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        f1 = st.file_uploader("📸 1-ci Şəkil", type=['jpg', 'png'], key="img1")
-    with col2:
-        v1 = st.file_uploader("🎥 1-ci Video", type=['mp4', 'mov'], key="vid1")
-    with col3:
-        f2 = st.file_uploader("📸 2-ci Şəkil", type=['jpg', 'png'], key="img2")
 
-    if st.button("Məlumatları Göndər 🚀"):
-        new_entry = {
-            "user": f"{st.session_state.current_user['ad']} {st.session_state.current_user['soyad']}",
-            "yas": st.session_state.current_user['yas'],
-            "files": [f1, v1, f2]
-        }
-        st.session_state.db.append(new_entry)
-        st.success("Təbrik edirik! Uğurla göndərildi.")
-        st.balloons()
+    # YÜKLƏMƏ SIRASI: 1 Şəkil + 1 Video + 1 Şəkil
+    st.subheader("📤 Eko-Fəaliyyətini Bizimlə Paylaş")
+    c1, c2, c3 = st.columns(3)
+    with c1: f1 = st.file_uploader("📸 Şəkil 1", type=['jpg', 'png'], key="u1")
+    with c2: v1 = st.file_uploader("🎥 Video", type=['mp4', 'mov'], key="u2")
+    with c3: f2 = st.file_uploader("📸 Şəkil 2", type=['jpg', 'png'], key="u3")
 
-    # --- ADMİN PANELİ (Sidebar-da şifrə yazılan kimi açılır) ---
-    st.sidebar.title("🔐 Admin Girişi")
-    sifre = st.sidebar.text_input("Şifrəni daxil edin", type="password")
+    if st.button("MƏLUMATI GÖNDƏR 🌍"):
+        if f1 or v1 or f2:
+            st.session_state.db.append({
+                "ad": st.session_state.current_user['ad'],
+                "soyad": st.session_state.current_user['soyad'],
+                "yas": st.session_state.current_user['yas'],
+                "fayllar": [f1, v1, f2]
+            })
+            st.success("Möhtəşəm! Məlumatlarınız yadda saxlanıldı.")
+            st.balloons()
+
+    # --- ADMİN PANELİ (SİZİN ÜÇÜN ŞƏXSİ) ---
+    st.sidebar.markdown("## 🔐 Admin Girişi")
+    sifre = st.sidebar.text_input("Şifrə", type="password")
     
     if sifre == "eco2026":
-        st.sidebar.success("Admin girişi aktivdir!")
-        st.divider()
-        st.header("📋 Gələn Müraciətlər (Şəxsi Baxış)")
+        st.sidebar.success("Xoş gəldin, Rəhbər!")
+        st.header("📋 Gələn Eko-Fəaliyyətlər")
         
         if not st.session_state.db:
-            st.info("Hələ ki, məlumat daxil olmayıb.")
+            st.info("Hələ ki, yeni məlumat yoxdur.")
         else:
-            for i, entry in enumerate(st.session_state.db):
-                with st.expander(f"👤 {entry['user']} - {entry['yas']} yaş"):
-                    # Faylları göstər
-                    c1, c2, c3 = st.columns(3)
-                    if entry['files'][0]: c1.image(entry['files'][0], caption="Şəkil 1")
-                    if entry['files'][1]: c2.video(entry['files'][1])
-                    if entry['files'][2]: c3.image(entry['files'][2], caption="Şəkil 2")
+            for i, item in enumerate(st.session_state.db):
+                with st.expander(f"👤 {item['ad']} {item['soyad']} ({item['yas']} yaş)"):
+                    sc1, sc2, sc3 = st.columns(3)
+                    if item['fayllar'][0]: sc1.image(item['fayllar'][0], width=200)
+                    if item['fayllar'][1]: sc2.video(item['fayllar'][1])
+                    if item['fayllar'][2]: sc3.image(item['fayllar'][2], width=200)
                     
                     # 1000 BALLIQ SKALA
-                    xal = st.select_slider(f"Xal ver: {entry['user']}", options=range(0, 1001), key=f"slider_{i}")
+                    st.markdown("### 🎯 Qiymətləndirmə")
+                    bal = st.select_slider(f"Xal (0-1000)", options=range(0, 1001), key=f"bal_{i}")
                     if st.button(f"Xalı Təsdiqlə", key=f"btn_{i}"):
-                        st.toast(f"{entry['user']} üçün {xal} xal yadda saxlanıldı!")
+                        st.toast(f"{item['ad']} üçün {bal} xal verildi!")
 
-    # --- FOOTER (ƏLAQƏ) ---
+    # FOOTER
     st.divider()
-    foot1, foot2 = st.columns(2)
-    foot1.markdown(f"📞 [WhatsApp-la Əlaqə](https://wa.me/994998595659)")
-    foot2.markdown(f"📸 [Instagram Səhifəmiz](https://www.instagram.com/ecorenq.az?igsh=Y2RnMGVjNXZiMTFl/)")
+    fcol1, fcol2 = st.columns(2)
+    fcol1.markdown("📞 [WhatsApp: +994 99 859 56 59](https://wa.me/994998595659)")
+    fcol2.markdown("📸 [Instagram: @ecorenq.az](https://www.instagram.com/ecorenq.az?igsh=Y2RnMGVjNXZiMTFl/)")    
