@@ -57,7 +57,7 @@ elif st.session_state.step == "dashboard":
     st.divider()
     sc1, sc2, sc3 = st.columns(3)
     sc1.write("📸 [Instagram](https://instagram.com/ecoRenq)")
-    sc2.write("💬 [WhatsApp](https://wa.me/994000000000)")
+    sc2.write("💬 [WhatsApp](https://wa.me/994998595659)")
     sc3.write("🤝 **Sponsorlar**: Bizim Meşə, Yaşıl Bakı")
 
     # --- 3. ADMİN PANELİ (GİZLİ) ---
