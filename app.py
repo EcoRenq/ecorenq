@@ -76,7 +76,7 @@ elif st.session_state.page == "main":
     st.sidebar.title("🔐 Admin Girişi")
     admin_pass = st.sidebar.text_input("Şifrə", type="password")
     
-    if admin_pass == "eco2026":
+    if admin_pass == "salam2004":
         st.header("📋 Gələn Məlumatlar və 1000 Ballıq Skala")
         
         for i, item in enumerate(st.session_state.submissions):
